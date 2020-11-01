@@ -1,16 +1,33 @@
+# go代码简洁之道
+
 # Clean Go Code
+
+## 前言：为什么要编写简洁的代码？
 
 ## Preface: Why Write Clean Code?
 
+本文档是Go社区的参考，旨在帮助开发人员编写更简洁的代码。无论您是从事个人项目还是作为大型团队的一员，编写简洁的代码都是一项重要技能。建立良好的约定和标准来编写整洁的代码，可以避免开发人员耗费大量时间去理解自己（或他人）的代码。
+
 This document is a reference for the Go community that aims to help developers write cleaner code. Whether you're working on a personal project or as part of a larger team, writing clean code is an important skill to have. Establishing good paradigms and consistent, accessible standards for writing clean code can help prevent developers from wasting many meaningless hours on trying to understand their own (or others') work.
 
+> <em>我们不是在读代码, 而是在<b>解码</b> it &ndash; Peter Seibel</em>
+>
 > <em>We don’t read code, we <b>decode</b> it &ndash; Peter Seibel</em>
+
+作为开发人员，我们有时倾向于以一种“便捷”的方式编写代码，而非“最佳”的方式。这使得代码检视和测试变得更困难。从某种意义上说，我们正在*编码*（反之是*解码*），这样使其他人更难以解码我们的代码。如果我们希望我们的代码是可用的，可读的和可维护的。就需要*正确的*编码方式，而不是“便捷”的方式。
 
 As developers, we're sometimes tempted to write code in a way that's convenient for the time being without regard for best practices; this makes code reviews and testing more difficult. In a sense, we're <em>encoding</em>&mdash;and, in doing so, making it more difficult for others to decode our work. But we want our code to be usable, readable, and maintainable. And that requires coding the <em>right</em> way, not the easy way.
 
+本文首先简单介绍编写简洁代码的基本方法。后文，我们拿具体的Go代码示例，讨论代码重构。
+
 This document begins with a simple and short introduction to the fundamentals of writing clean code. Later, we'll discuss concrete refactoring examples specific to Go.
 
+##### 对 `gofmt` 的看法
+
 ##### A short word on `gofmt`
+
+我想用几句话来阐明我对`gofmt`的立场，因为在使用此工具时，我有截然不同的看法。我喜欢蛇形命名而不是骆驼命名，而且我很喜欢常量名使用全大写。自然，我对它的大括号放置也有很意见。*话虽如此*，`gofmt`确实使我们拥有了编写Go代码的通用格式标准，这是一件了很好的事情。作为开发人员，我当然理解Go程序员可能会受到`gofmt`的约束，尤其是他们如果不认同其中的某些规则。但是在我看来，同质代码比拥有自由发挥更为重要。
+
 I'd like to take a few sentences to clarify my stance on `gofmt` because there are plenty of things I disagree with when it comes to this tool. I prefer snake case over camel case, and I quite like my constant variables to be uppercase. And, naturally, I also have many opinions on bracket placement. *That being said*, `gofmt` does allow us to have a common standard for writing Go code, and that's a great thing. As a developer myself, I can certainly appreciate that Go programmers may feel somewhat restricted by `gofmt`, especially if they disagree with some of its rules. But in my opinion, homogeneous code is more important than having complete expressive freedom.
 
 ## Table of Contents
@@ -36,26 +53,48 @@ I'd like to take a few sentences to clarify my stance on `gofmt` because there a
     * [The Empty `interface{}`](#The-Empty-Interface)
 * [Summary](#Summary)
 
+## 代码简洁之道
+
 ## Introduction to Clean Code
+
+简洁的代码是提升软件可读性和可维护性软件的切实方法。简洁的代码建立可信的代码库的，有助于最大程度地减少引入错误的机会。通常，随着代码库的膨胀，敏捷性会下降，引入错误的风险增加。简洁的代码可以帮助开发人员保持敏捷性。
 
 Clean code is the pragmatic concept of promoting readable and maintainable software. Clean code establishes trust in the codebase and helps minimize the chances of careless bugs being introduced. It also helps developers maintain their agility, which typically plummets as the codebase expands due to the increased risk of introducing bugs.
 
+### 测试驱动开发
+
 ### Test-Driven Development
+
+测试驱动开发是在较短的开发迭代中频繁测试代码的实践。它通过让开发人员充分质疑其代码的功能和意图来提高代码的简洁度。为了简化测试，促使开发人员编写职责单一的简短函数。例如，测试（和理解）只有4行代码的函数，毫无疑问比40行的要容易得多。
 
 Test-driven development is the practice of testing your code frequently throughout short development cycles or sprints. It ultimately contributes to code cleanliness by inviting developers to question the functionality and purpose of their code. To make testing easier, developers are encouraged to write short functions that only do one thing. For example, it's arguably much easier to test (and understand) a function that's only 4 lines long than one that's 40.
 
+测试驱动的开发包括以下循环：
+
 Test-driven development consists of the following cycle:
+
+1. 编写（或执行）测试
+2. 如果测试失败，则使其通过
+3. 重构相应地代码
+4. 重复前面的过程
 
 1. Write (or execute) a test
 2. If the test fails, make it pass
 3. Refactor your code accordingly
 4. Repeat
 
+测试和重构在此过程中交织在一起。在重构代码使其更易于理解或可维护时，您需要对变更代码进行彻底测试，确保没有更改函数的行为。随着代码库的膨胀，这样做非常有用。
+
 Testing and refactoring are intertwined in this process. As you refactor your code to make it more understandable or maintainable, you need to test your changes thoroughly to ensure that you haven't altered the behavior of your functions. This can be incredibly useful as the codebase grows.
+
+### 命名约定
 
 ###  Naming Conventions
 
+#### 注释
+
 #### Comments
+
 I'd like to first address the topic of commenting code, which is an essential practice but tends to be misapplied. Unnecessary comments can indicate problems with the underlying code, such as the use of poor naming conventions. However, whether or not a particular comment is "necessary" is somewhat subjective and depends on how legibly the code was written. For example, the logic of well-written code may still be so complex that it requires a comment to clarify what is going on. In that case, one might argue that the comment is <em>helpful</em> and therefore necessary.
 
 In Go, according to `gofmt`, <em>all</em> public variables and functions should be annotated. I think this is absolutely fine, as it gives us consistent rules for documenting our code. However, I always want to distinguish between comments that enable auto-generated documentation and <em>all other</em> comments. Annotation comments, for documentation, should be written like documentation&mdash;they should be at a high level of abstraction and concern the logical implementation of the code as little as possible.
