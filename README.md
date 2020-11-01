@@ -95,15 +95,24 @@ Testing and refactoring are intertwined in this process. As you refactor your co
 
 #### Comments
 
+我首先想谈谈注释，注释是必不可少的，但往往会被误用。不必要的注释恰恰表明代码有问题，例如使用不良的命名约定，没有做到自解释。然而，特定注释是否“必要”在某种程度上是主观的，并且取决于代码的可读性。例如，即便是良好的代码，其逻辑可能仍然非常复杂，以至于需要注释去解释内在的逻辑。在这种情况下，有人可能会说该注视*很有用*，因此是必要的。
+
 I'd like to first address the topic of commenting code, which is an essential practice but tends to be misapplied. Unnecessary comments can indicate problems with the underlying code, such as the use of poor naming conventions. However, whether or not a particular comment is "necessary" is somewhat subjective and depends on how legibly the code was written. For example, the logic of well-written code may still be so complex that it requires a comment to clarify what is going on. In that case, one might argue that the comment is <em>helpful</em> and therefore necessary.
+
+根据`gofmt`的规则，在Go中，应注释*所有*公共变量和函数。我认为这绝对不错，因为它为我们提供了文档的一致规则。不过，我始终想区分自动生成文档的注释和*所有其他*注释。对于文档，注释应像文档一样书写-它们应处于较高的抽象水平，并且应尽可能少地关注代码的逻辑实现。
 
 In Go, according to `gofmt`, <em>all</em> public variables and functions should be annotated. I think this is absolutely fine, as it gives us consistent rules for documenting our code. However, I always want to distinguish between comments that enable auto-generated documentation and <em>all other</em> comments. Annotation comments, for documentation, should be written like documentation&mdash;they should be at a high level of abstraction and concern the logical implementation of the code as little as possible.
 
+我之所以这样说，是因为还有其他方法可以解释代码，并确保被正确表达和理解。如果代码都不是，那有些人认为引入注释来解释复杂的逻辑是可以接受的。然而不幸的是，这并没有多大用处。一方面，大多数人根本不会阅读注释，因为它们往往会对阅读代码产生干扰。另外，正如您可以想象的那样，如果开发人员被迫看那些已经和代码脱节的注视，他们也不会太乐意。人们被迫去读懂您的代码的次数越少，他们的就越爽。
+
 I say this because there are other ways to explain code and ensure that it's being written comprehensibly and expressively. If the code is neither of those, some people find it acceptable to introduce a comment explaining the convoluted logic. Unfortunately, that doesn't really help. For one, most people simply won't read comments, as they tend to be very intrusive to the experience of reviewing code. Additionally, as you can imagine, a developer won't be too happy if they're forced to review unclear code that's been slathered with comments. The less that people have to read to understand what your code is doing, the better off they'll be.
+
+让我们看一个具体的例子。这是*不当*注释代码的方式：
 
 Let's take a step back and look at some concrete examples. Here's how you <em>shouldn't</em> comment your code:
 
 ```go
+// 迭代0到9，并且每个迭代调用一次doSomething函数
 // iterate over the range 0 to 9 
 // and invoke the doSomething function
 // for each iteration
@@ -112,13 +121,20 @@ for i := 0; i < 10; i++ {
 }
 ```
 
+这就是我所谓的**教学注释**；这在教学中相当普遍，通常会注视语言（或一般而言到编程语言）的低级功能。这些注释对初学者可能有所帮助，但它们在生产代码中绝对没有用。希望我们不会与那些在开始为开发团队工作时还不了解像循环构造这样简单的事情的程序员进行合作。作为程序员，我们不必阅读注释即可了解代码逻辑—我们知道上面的代码在0到9的范围内进行迭代，因为我们可以轻松地读取代码。因此，有谚语说到：
+
 This is what I like to call a <strong>tutorial comment</strong>; it's fairly common in tutorials, which often explain the low-level functionality of a language (or programming in general). While these comments may be helpful for beginners, they're absolutely useless in production code. Hopefully, we aren't collaborating with programmers who don't understand something as simple as a looping construct by the time they've begun working on a development team. As programmers, we shouldn't have to read the comment to understand what's going on&mdash;we know that we're iterating over the range 0 to 9 because we can simply read the code. Hence the proverb:
 
+> <em>注释为什么这样做 , 而不是怎么做. &ndash; Venkat Subramaniam</em>
+>
 > <em>Document why, not how. &ndash; Venkat Subramaniam</em>
+
+按照这种逻辑，我们现在可以修改注释以解释*为什么*要从0到9范围进行迭代：
 
 Following this logic, we can now change our comment to explain <em>why</em> we are iterating from the range 0 to 9:
 
 ```go
+// 10个线程处理即将到来的工作负荷
 // instatiate 10 threads to handle upcoming work load
 for i := 0; i < 10; i++ {
   doSomething(i)
