@@ -167,6 +167,8 @@ Of course, this was a relatively trivial example. Writing clear and expressive c
 
 #### Function Naming
 
+现在让我们看函数命名约定。通常规则非常简单：功能越具体，其名称就越通用。换句话说，我们从一个非常简短的函数名称开始，例如`Run`或`Parse`，它描述了常规功能。假设我们创建一个配置解析器。按照此命名约定，最高抽象级别可能如下：
+
 Let's now move on to function naming conventions. The general rule here is really simple: the more specific the function, the more general its name. In other words, we want to start with a very broad and short function name, such as `Run` or `Parse`, that describes the general functionality. Let's imagine that we are creating a configuration parser. Following this naming convention, our top level of abstraction might look something like the following:
 
 ```go
@@ -180,7 +182,11 @@ func main() {
 }
 ```
 
+这里重点介绍`Parse`函数的命名。尽管此函数的名称非常简短和通用，但实际上很清楚它要实现的目标。
+
 We'll focus on the naming of the `Parse` function. Despite this function's very short and general name, it's actually quite clear what it attempts to achieve.
+
+再深入一层，函数命名将变得更加具体：
 
 When we go one layer deeper, our function naming will become slightly more specific:
 
