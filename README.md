@@ -141,7 +141,11 @@ for i := 0; i < 10; i++ {
 }
 ```
 
+现在我们知道*为什么*会有一个循环，并且只需阅读代码就可以知道在做*什么*。
+
 Now we understand <em>why</em> we have a loop and can tell <em>what</em> we're doing by simply reading the code... Sort of.
+
+这仍然不是我认为的简洁代码。因为假设代码编写正确（真实情况可能不是），则可能不需注释。从技术上讲，这个注释仍在说做什么，而不是在说为什么。通过使用更能自解释的名称，可以轻而易举地直接在代码中表达“做什么”：
 
 This still isn't what I'd consider clean code. The comment is worrying because it probably should not be necessary to express such an explanation in prose, assuming the code is well written (which it isn't). Technically, we're still saying what we're doing, not why we're doing it. We can easily express this "what" directly in our code by using more meaningful names:
 
@@ -151,9 +155,15 @@ for workerID := 0; workerID < 10; workerID++ {
 }
 ```
 
+只需对变量和函数名进行小小的改动，就可以直接在代码中解释代码正在做什么。对于阅读代码来说，这更清楚了，因为不必阅读注释，并将注视映射到代码。取而代之的是，只需阅读代码即可了解其功能。
+
 With just a few changes to our variable and function names, we've managed to explain what we're doing directly in our code. This is much clearer for the reader because they won't have to read the comment and then map the prose to the code. Instead, they can simply read the code to understand what it's doing.
 
+当然，这是一个相对简单的例子。不幸的是，编写清晰可读的代码并不那么容易。随着代码库本身复杂性的增加，它会变得越来越困难。在这种思维方式下写注释的次数越多，避免解释代码在做什么，代码将变得更加简洁。
+
 Of course, this was a relatively trivial example. Writing clear and expressive code is unfortunately not always so easy; it can become increasingly difficult as the codebase itself grows in complexity. The more you practice writing comments in this mindset and avoid explaining what you're doing, the cleaner your code will become.
+
+#### 函数命名
 
 #### Function Naming
 
