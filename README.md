@@ -205,7 +205,13 @@ func Parse(filepath string) (Config, error) {
 }
 ```
 
+在此，我们已经清楚地将被调函数与调用函数区分开来，而又不过分具体。这样，每个被调函数就可以独立地在父级上下文中使用。另一方面，如果我们改名为`parseJSON`函数`json`，则它不可能独立存在。该功能将失去名称，我们将不再能够知道该功能是解析，创建还是封送JSON。
+
+
+
 Here, we've clearly distinguished the nested function calls from their parent without being overly specific. This allows each nested function call to make sense on its own as well as within the context of the parent. On the other hand, if we had named the `parseJSON` function `json` instead, it couldn't possibly stand on its own. The functionality would become lost in the name, and we would no longer be able to tell whether this function is parsing, creating, or marshalling JSON. 
+
+注意，`fileExtension`实际上过于具体。但是，这是因为其功能实际上是非常具体的：
 
 Notice that `fileExtension` is actually a little more specific. However, this is because its functionality is in fact quite specific in nature:
 
@@ -216,12 +222,23 @@ func fileExtension(filepath string) string {
 }
 ```
 
+这种函数命名逻辑：从较高的抽象层次到较低的（更具体的层次），使代码更易于阅读。反之，如果我们的高层抽象层次过于具体，那么高层函数名要覆盖所有基础的函数名，例如`DetermineFileExtensionAndParseConfigurationFile`。这很晦涩难读。尽管这样做试图让函数名变得清晰，但太过具体以至于最终使读者感到困惑！
+
 This kind of logical progression in our function names&mdash;from a high level of abstraction to a lower, more specific one&mdash;makes the code easier to follow and read. Consider the alternative: If our highest level of abstraction is too specific, then we'll end up with a name that attempts to cover all bases, like `DetermineFileExtensionAndParseConfigurationFile`. This is horrendously difficult to read; we are trying to be too specific too soon and end up confusing the reader, despite trying to be clear! 
 
+#### 变量命名
+
 #### Variable Naming
+
+有意思的是，变量命名却相反，与函数命名不同。进入嵌套越深，变量命名从具体变得不那么具体。
+
 Rather interestingly, the opposite is true for variables. Unlike functions, our variables should be named from more to less specific the deeper we go into nested scopes.
 
+> *不应以变量的类型命名，就好比您不应该将宠物命名为“狗”或“猫”。–戴夫·切尼*
+>
 > <em>You shouldn’t name your variables after their types for the same reason you wouldn’t name your pets 'dog' or 'cat'. &ndash; Dave Cheney</em>
+
+当深入研究函数的作用域时，为什么变量名应该变得不太具体？简而言之，随着变量范围的变小，对于读者来说，该变量代表的含义变得越来越清晰，从而消除了对特定命名的需求。在前面的函数的例子`fileExtension`，我们甚至可以缩短变量`segments`的名字为`s`。变量的上下文非常清晰，因此无需使用更长的变量名进一步解释它。另一个很好的例子是嵌套的for循环：
 
 Why should our variable names become less specific as we travel deeper into a function's scope? Simply put, as a variable's scope becomes smaller, it becomes increasingly clear for the reader what that variable represents, thereby eliminating the need for specific naming. In the example of the previous function `fileExtension`, we could even shorten the name of the variable `segments` to `s` if we wanted to. The context of the variable is so clear that it's unnecessary to explain it any further with longer variable names. Another good example of this is in nested for loops:
 
@@ -232,6 +249,8 @@ func PrintBrandsInList(brands []BeerBrand) {
     }
 }
 ```
+
+在上面的示例中，变量`b`的范围很小，因此我们不需要花费任何额外的脑力来记住变量的确切含义。但是，由于的范围`brands`略大，因此需要更加具体。下面的函数扩大变量的作用域，这种差别更加明显：
 
 In the above example, the scope of the variable `b` is so small that we don't need to spend any additional brain power on remembering what exactly it represents. However, because the scope of `brands` is slightly larger, it helps for it to be more specific. When expanding the variable scope in the function below, this distinction becomes even more apparent:
 
@@ -247,6 +266,8 @@ func BeerBrandListToBeerList(beerBrands []BeerBrand) []Beer {
 }
 ```
 
+很好！这个函数可读性好。现在，让我们反其道而行，在变量命名时使用相反的逻辑（错误的）：
+
 Great! This function is easy to read. Now, let's apply the opposite (i.e., wrong) logic when naming our variables:
 
 ```go
@@ -261,17 +282,31 @@ func BeerBrandListToBeerList(b []BeerBrand) []Beer {
 }
 ```
 
+即使有可能弄清楚此函数的作用，但变量名的简洁性使我们在深入阅读时难免逻辑混乱。因为乱用了短名称和长名称。
+
 Even though it's possible to figure out what this function is doing, the excessive brevity of the variable names makes it difficult to follow the logic as we travel deeper. This could very well spiral into full-blown confusion because we're mixing short and long variable names inconsistently.
+
+### 简洁函数
 
 ### Cleaning Functions
 
+既然我们已经知道了一些用于变量命名和函数命名的最佳实践，并且可以通过注释来澄清代码，接下来让我们深入探讨如何重构函数以使其更简洁。
+
 Now that we know some best practices for naming our variables and functions, as well as clarifying our code with comments, let's dive into some specifics of how we can refactor functions to make them cleaner.
+
+#### 函数长度
 
 #### Function Length
 
+> *函数应该多长？比那个短！–罗伯特·马丁*
+>
 > <em>How small should a function be? Smaller than that! &ndash; Robert C. Martin</em>
 
+在编写简洁的代码时，我们的主要目标是使我们的代码易于阅读。最有效的方法是使我们的函数尽可能短。这样做不是为了避免代码重复，更重要的原因是提高*代码可读性*。
+
 When writing clean code, our primary goal is to make our code easily digestible. The most effective way to do this is to make our functions as short as possible. It's important to understand that we don't necessarily do this to avoid code duplication. The more important reason is to improve <em>code comprehension</em>.
+
+下面的伪代码可以帮助您从较高的层次看待函数，从而更好地理解这一点：
 
 It can help to look at a function's description at a very high level to understand this better:
 
@@ -282,6 +317,8 @@ fn GetItem:
     - check user has appropriate role
     - get order from database
 ```
+
+
 
 By writing short functions (which are typically 5&ndash;8 lines in Go), we can create code that reads almost as naturally as our description above:
 
