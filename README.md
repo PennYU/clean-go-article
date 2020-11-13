@@ -318,7 +318,7 @@ fn GetItem:
     - get order from database
 ```
 
-
+通过编写短函数（在Go中通常为5至8行），我们编写出几乎和上面一样可读的代码：
 
 By writing short functions (which are typically 5&ndash;8 lines in Go), we can create code that reads almost as naturally as our description above:
 
@@ -339,6 +339,8 @@ func GetItem(ctx context.Context, json []bytes) (Item, error) {
     return db.GetItem(order.ItemID)
 }
 ```
+
+编写较小的函数还消除编写代码的另一个坏习惯：缩进地狱。**缩进地狱**通常是在函数中嵌套`if`语句而引起。这使得代码*非常*晦涩难懂，应该尽可能避免。缩进地狱在使用`interface{}`和使用类型转换时特别常见：
 
 Using smaller functions also eliminates another horrible habit of writing code: indentation hell. <strong>Indentation hell</strong> typically occurs when a chain of `if` statements are carelessly nested in a function. This makes it <em>very</em> difficult for human beings to parse the code and should be eliminated whenever spotted. Indentation hell is particularly common when working with `interface{}` and using type casting:
 
@@ -367,9 +369,15 @@ func GetItem(extension string) (Item, error) {
 }
 ```
 
+首先，缩进地狱使其他开发人员难以理解您的代码。其次，如果`if`语句中的代码展开，要弄清楚哪个分支返回什么值（或确保所有路径都返回某个值）将变得越来越困难。另一个问题是条件语句的这种深层嵌套迫使读者频繁滚动并跟踪逻辑状态。这也使测试代码和捕获错误变得更加困难，因为您必须考虑很多不同的分支可能性。
+
 First, indentation hell makes it difficult for other developers to understand the flow of your code. Second, if the logic in our `if` statements expands, it'll become exponentially more difficult to figure out which statement returns what (and to ensure that all paths return some value). Yet another problem is that this deep nesting of conditional statements forces the reader to frequently scroll and keep track of many logical states in their head. It also makes it more difficult to test the code and catch bugs because there are so many different nested possibilities that you have to account for.
 
+如果开发人员不得不常常阅读如上的烂代码，那么缩进地狱可能会导致阅读疲劳。因此，我们应该不惜一切代价避免这样的代码。
+
 Indentation hell can result in reader fatigue if a developer has to constantly parse unwieldy code like the sample above. Naturally, this is something we want to avoid at all costs.
+
+那么，我们如何优化这个函数？非常简单，在第一个迭代中，我们将尽快返回错误。可以，我们不必嵌套`if`and`else`语句，从而“将代码推到左侧”。如下：
 
 So, how do we clean this function? Fortunately, it's actually quite simple. On our first iteration, we will try to ensure that we are returning an error as soon as possible. Instead of nesting the `if` and `else` statements, we want to "push our code to the left," so to speak. Take a look:
 
@@ -402,6 +410,8 @@ func GetItem(extension string) (Item, error) {
     return Item, nil
 }
 ```
+
+完成对函数的第一次重构后，我们就可以继续将函数拆分成更小的函数。这里有一个很好的经验法则：如果`value, err :=`这种模式在一个函数中出现多次，则表明我们可以将代码逻辑拆分成较小的函数：
 
 Once we're done with our first attempt at refactoring the function, we can proceed to split up the function into smaller functions. Here's a good rule of thumb:  If the `value, err :=` pattern is repeated more than once in a function, this is an indication that we can split the logic of our code into smaller pieces:
 
